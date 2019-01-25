@@ -9,12 +9,12 @@ RUN apt-get update && apt-get install -y \
         ssmtp \
 	libssl-dev
 
-RUN docker-php-ext-install -j$(nproc) iconv curl \
+RUN docker-php-ext-install -j$(nproc) iconv curl mcrypt \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd
 
-RUN pecl install mcrypt-1.0.1 \
-		&& docker-php-ext-enable mcrypt
+# RUN pecl install mcrypt-1.0.1 \
+#		&& docker-php-ext-enable mcrypt
 
 RUN     mkdir /var/run/php-fpm
 RUN     rm /usr/local/etc/php-fpm.d/*
