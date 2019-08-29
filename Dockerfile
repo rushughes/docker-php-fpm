@@ -1,22 +1,17 @@
-FROM php:7-fpm
+FROM php:7-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-	libcurl4-openssl-dev libc-client-dev libkrb5-dev \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng-dev \
-        ssmtp \
-	libssl-dev
+RUN apk upgrade --update && apk add \
+	freetype-dev \
+	libjpeg-turbo-dev \
+	libpng-dev \
+	autoconf
 
-RUN docker-php-ext-install -j$(nproc) iconv curl \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd
+RUN docker-php-ext-install iconv mysqli pdo pdo_mysql \
+	&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+	&& docker-php-ext-install gd \
+	&& rm -rf /var/cache/apk/*
 
-RUN     mkdir /var/run/php-fpm
-RUN     rm /usr/local/etc/php-fpm.d/*
 COPY    www.conf /usr/local/etc/php-fpm.d/www.conf
-COPY    php.ini /usr/local/etc/php/
-RUN     docker-php-ext-install mysqli pdo pdo_mysql
+COPY    php.ini /usr/local/etc/php/php.ini
 
 VOLUME ["/var/www/html", "/usr/local/etc/php-fpm.d", "/var/run/php-fpm"]
